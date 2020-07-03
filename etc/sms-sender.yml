@@ -1,0 +1,23 @@
+---
+logger:
+  dir: "logs/sms-sender"
+  level: "DEBUG"
+  keepHours: 24
+
+redis:
+  addr: "127.0.0.1:6379"
+  pass: ""
+  db: 0
+  idle: 5
+  timeout:
+    conn: 500
+    read: 3000
+    write: 3000
+
+# 这个配置不用动，worker是调用sms的并发数
+consumer:
+  queue: "/n9e/sender/im"
+  worker: 10
+
+sms:
+  openurl: "http://127.0.0.1:8001/api-develop/test/"
