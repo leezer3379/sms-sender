@@ -2,14 +2,15 @@ package corp
 
 import (
 	"bytes"
-	"context"
+	//"context"
 	"encoding/json"
 	"fmt"
-	"github.com/toolkits/pkg/logger"
+	//"github.com/toolkits/pkg/logger"
 	"io/ioutil"
-	"net"
+	//"net"
 	"net/http"
-	"strings"
+	"net/url"
+	//"strings"
 	"time"
 )
 
@@ -56,28 +57,33 @@ func (c *Client) Send(mobile string, msg string) error {
 	return err
 }
 
-func jsonPost(url string, data interface{}) ([]byte, error) {
-	jsonBody, err := encodeJSON(data)
+func jsonPost(url string, data url.Values) ([]byte, error) {
+	//jsonBody, err := encodeJSON(data)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//req, err := http.NewRequest("POST", url, strings.NewReader(string(jsonBody)))
+
+	req, err := http.PostForm(url, data)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	req, err := http.NewRequest("POST", url, strings.NewReader(string(jsonBody)))
-	if err != nil {
-		logger.Info("ding talk new post request err =>", err)
-		return nil, err
-	}
+	//if err != nil {
+	//	logger.Info("ding talk new post request err =>", err)
+	//	return nil, err
+	//}
 
 	//req.Header.Set("Content-Type", "application/json")
 
-	client := getClient()
-	resp, err := client.Do(req)
-	if err != nil {
-		logger.Error("ding talk post request err =>", err)
-		return nil, err
-	}
+	//client := getClient()
+	//resp, err := client.Do(req)
+	//if err != nil {
+	//	logger.Error("ding talk post request err =>", err)
+	//	return nil, err
+	//}
 
-	defer resp.Body.Close()
-	return ioutil.ReadAll(resp.Body)
+	defer req.Body.Close()
+	return ioutil.ReadAll(req.Body)
 }
 
 func encodeJSON(v interface{}) ([]byte, error) {
@@ -90,26 +96,27 @@ func encodeJSON(v interface{}) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (c *Client) generateData(mobile string, msg string) interface{} {
-	postData := make(map[string]interface{})
-	postData["mobile"] = mobile
-	postData["message"] = msg
-	return postData
+func (c *Client) generateData(mobile string, msg string) url.Values {
+	params := url.Values{
+		"mobile":  {mobile},
+		"message": {msg},
+	}
+	return params
 }
 
-func getClient() *http.Client {
-	// 通过http.Client 中的 DialContext 可以设置连接超时和数据接受超时 （也可以使用Dial, 不推荐）
-	return &http.Client{
-		Transport: &http.Transport{
-			DialContext: func(ctx context.Context, network, addr string) (conn net.Conn, e error) {
-				conn, err := net.DialTimeout(network, addr, dingTimeOut) // 设置建立链接超时
-				if err != nil {
-					return nil, err
-				}
-				_ = conn.SetDeadline(time.Now().Add(dingTimeOut)) // 设置接受数据超时时间
-				return conn, nil
-			},
-			ResponseHeaderTimeout: dingTimeOut, // 设置服务器响应超时时间
-		},
-	}
-}
+//func getClient() *http.Client {
+//	// 通过http.Client 中的 DialContext 可以设置连接超时和数据接受超时 （也可以使用Dial, 不推荐）
+//	return &http.Client{
+//		Transport: &http.Transport{
+//			DialContext: func(ctx context.Context, network, addr string) (conn net.Conn, e error) {
+//				conn, err := net.DialTimeout(network, addr, dingTimeOut) // 设置建立链接超时
+//				if err != nil {
+//					return nil, err
+//				}
+//				_ = conn.SetDeadline(time.Now().Add(dingTimeOut)) // 设置接受数据超时时间
+//				return conn, nil
+//			},
+//			ResponseHeaderTimeout: dingTimeOut, // 设置服务器响应超时时间
+//		},
+//	}
+//}
