@@ -16,7 +16,7 @@ redis:
 
 # 这个配置不用动，worker是调用sms的并发数
 consumer:
-  queue: "/n9e/sender/im"
+  queue: "/n9e/sender/sms"
   worker: 10
 
 sms:

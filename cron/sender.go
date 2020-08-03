@@ -59,10 +59,13 @@ func sendSms(message *dataobj.Message) {
 
 	if count := len(mobiles); count > 0 {
 		for _, mobile := range mobiles {
-			err := smsClient.Send(mobile, content)
-			if err != nil {
-				logger.Errorf("send to %s fail:  %v", message.Tos, err)
+			if mobile != "" {
+				err := smsClient.Send(mobile, content)
+				if err != nil {
+					logger.Errorf("send to %s fail:  %v", message.Tos, err)
+				}
 			}
+
 		}
 	}
 	logger.Info("<-- /hashid: %v -->", message.Event.HashId)
